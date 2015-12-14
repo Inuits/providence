@@ -29,14 +29,11 @@
  *
  * ----------------------------------------------------------------------
  */
-
- /**
-  *
-  */
-
+/**
+ *
+ */
 require_once(__CA_LIB_DIR__."/ca/Service/BaseJSONService.php");
 require_once(__CA_MODELS_DIR__."/ca_lists.php");
-
 class ItemService extends BaseJSONService {
 	# -------------------------------------------------------
 	public function __construct($po_request, $ps_table="") {
@@ -101,17 +98,13 @@ class ItemService extends BaseJSONService {
 		if(!($t_instance = $this->_getTableInstance($this->ops_table,$this->opn_id))) {	// note that $this->opn_id might be a string if we're fetching by idno; you can only use an idno for getting an item, not for editing or deleting
 			return false;
 		}
-
 		$va_post = $this->getRequestBodyArray();
-
 		$va_return = array();
-
 		// allow user-defined template to be passed; allows flexible formatting of returned "display" value
 		if (!($vs_template = $this->opo_request->getParameter('template', pString))) { $vs_template = ''; }
 		if ($vs_template) {
 			$va_return['display'] = caProcessTemplateForIDs($vs_template, $this->ops_table, array($this->opn_id));
 		}
-
 		if(!is_array($va_post["bundles"])) {
 			return false;
 		}
@@ -119,28 +112,22 @@ class ItemService extends BaseJSONService {
 			if($this->_isBadBundle($vs_bundle)) {
 				continue;
 			}
-
 			if(!is_array($va_options)) {
 				$va_options = array();
 			}
-
 			// hack to add option to include comment count in search result
 			if(trim($vs_bundle) == 'ca_item_comments.count') {
 				$va_item[$vs_bundle] = (int) $t_instance->getNumComments(null);
 				continue;
 			}
-
 			$vm_return = $t_instance->get($vs_bundle,$va_options);
-
 			// render 'empty' arrays as JSON objects, not as lists (which is the default behavior of json_encode)
 			if(is_array($vm_return) && sizeof($vm_return)==0) {
 				$va_return[$vs_bundle] = new stdClass;
 			} else {
 				$va_return[$vs_bundle] = $vm_return;
 			}
-
 		}
-
 		return $va_return;
 	}
 	# -------------------------------------------------------
@@ -154,17 +141,13 @@ class ItemService extends BaseJSONService {
 		$t_list = new ca_lists();
 		$t_locales = new ca_locales();
 		$o_dm = Datamodel::load();
-
 		$va_locales = $t_locales->getLocaleList(array("available_for_cataloguing_only" => true));
-
 		$va_return = array();
-
 		// allow user-defined template to be passed; allows flexible formatting of returned "display" value
 		if (!($vs_template = $this->opo_request->getParameter('template', pString))) { $vs_template = ''; }
 		if ($vs_template) {
 			$va_return['display'] = caProcessTemplateForIDs($vs_template, $this->ops_table, array($this->opn_id));
 		}
-
 		// labels
 		$va_labels = $t_instance->get($this->ops_table.".preferred_labels", array("returnWithStructure" => true, "returnAllLocales" => true));
 		$va_labels = end($va_labels);
@@ -175,7 +158,6 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		$va_labels = $t_instance->get($this->ops_table.".nonpreferred_labels", array("returnWithStructure" => true, "returnAllLocales" => true));
 		$va_labels = end($va_labels);
 		if(is_array($va_labels)) {
@@ -185,7 +167,6 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		// "intrinsic" fields
 		foreach($t_instance->getFieldsArray() as $vs_field_name => $va_field_info) {
 			if (($this->ops_table == 'ca_object_representations') && ($vs_field_name == 'media_metadata')) { continue; }
@@ -223,10 +204,8 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		// comment count
 		$va_return['num_comments'] = $t_instance->getNumComments(null);
-
 		// representations for representable stuff
 		if($t_instance instanceof RepresentableBaseModel) {
 			$va_reps = $t_instance->getRepresentations(array('preview170','original'));
@@ -234,7 +213,6 @@ class ItemService extends BaseJSONService {
 				$va_return['representations'] = $va_reps;
 			}
 		}
-
 		// captions for representations
 		if($t_instance instanceof ca_object_representations) {
 			$va_captions = $t_instance->getCaptionFileList();
@@ -242,7 +220,6 @@ class ItemService extends BaseJSONService {
 				$va_return['captions'] = $va_captions;
 			}
 		}
-
 		// attributes
 		$va_codes = $t_instance->getApplicableElementCodes();
 		foreach($va_codes as $vs_code) {
@@ -258,17 +235,18 @@ class ItemService extends BaseJSONService {
 						$vs_locale_code = isset($va_locales[$vn_locale_id]["code"]) ? $va_locales[$vn_locale_id]["code"] : "none";
 						$va_attribute_values[$vs_val_id][$vs_locale_code] = $va_actual_data;
 					}
-
 					$va_return[$this->ops_table.".".$vs_code] = $va_attribute_values;
 				}
 			}
 		}
-
 		// relationships
 		// yes, not all combinations between these tables have
 		// relationships but it also doesn't hurt to query
 		foreach($this->opa_valid_tables as $vs_rel_table) {
-
+			$vs_get_spec = $vs_rel_table;
+			if($vs_rel_table == $this->ops_table) {
+				$vs_get_spec = $vs_rel_table . '.related';
+			}
 			//
 			// set-related hacks
 			if($this->ops_table == "ca_sets" && $vs_rel_table=="ca_tours") { // throws SQL error in getRelatedItems
@@ -289,10 +267,8 @@ class ItemService extends BaseJSONService {
 			}
 			// end set-related hacks
 			//
-
-			$va_related_items = $t_instance->get($vs_rel_table, array("returnWithStructure" => true));
+			$va_related_items = $t_instance->get($vs_get_spec, array("returnWithStructure" => true));
 			$t_rel_instance = $o_dm->getInstance($vs_rel_table);
-
 			if(is_array($va_related_items) && sizeof($va_related_items)>0) {
 				if($t_rel_instance instanceof RepresentableBaseModel) {
 					foreach($va_related_items as &$va_rel_item) {
@@ -304,7 +280,6 @@ class ItemService extends BaseJSONService {
 				$va_return["related"][$vs_rel_table] = array_values($va_related_items);
 			}
 		}
-
 		return $va_return;
 	}
 	# -------------------------------------------------------
@@ -317,17 +292,13 @@ class ItemService extends BaseJSONService {
 			return false;
 		}
 		$t_locales = new ca_locales();
-
 		$va_locales = $t_locales->getLocaleList(array("available_for_cataloguing_only" => true));
-
 		$va_return = array();
-
 		// allow user-defined template to be passed; allows flexible formatting of returned "display" value
 		if (!($vs_template = $this->opo_request->getParameter('template', pString))) { $vs_template = ''; }
 		if ($vs_template) {
 			$va_return['display'] = caProcessTemplateForIDs($vs_template, $this->ops_table, array($this->opn_id));
 		}
-
 		// "intrinsic" fields
 		foreach($t_instance->getFieldsArray() as $vs_field_name => $va_field_info) {
 			$vs_list = null;
@@ -338,7 +309,6 @@ class ItemService extends BaseJSONService {
 				$va_return['intrinsic_fields'][$vs_field_name] = $vs_val;
 			}
 		}
-
 		// preferred labels
 		$va_labels = $t_instance->get($this->ops_table.".preferred_labels", array("returnWithStructure" => true, "returnAllLocales" => true));
 		$va_labels = end($va_labels);
@@ -347,17 +317,14 @@ class ItemService extends BaseJSONService {
 				foreach($va_labels_by_locale as $va_tmp) {
 					$va_label = array();
 					$va_label['locale'] = $va_locales[$vn_locale_id]["code"];
-
 					// add only UI fields to return
 					foreach($t_instance->getLabelUIFields() as $vs_label_fld) {
 						$va_label[$vs_label_fld] = $va_tmp[$vs_label_fld];
 					}
-
 					$va_return["preferred_labels"][] = $va_label;
 				}
 			}
 		}
-
 		// nonpreferred labels
 		$va_labels = $t_instance->get($this->ops_table.".nonpreferred_labels", array("returnWithStructure" => true, "returnAllLocales" => true));
 		$va_labels = end($va_labels);
@@ -366,17 +333,14 @@ class ItemService extends BaseJSONService {
 				foreach($va_labels_by_locale as $va_tmp) {
 					$va_label = array();
 					$va_label['locale'] = $va_locales[$vn_locale_id]["code"];
-
 					// add only UI fields to return
 					foreach($t_instance->getLabelUIFields() as $vs_label_fld) {
 						$va_label[$vs_label_fld] = $va_tmp[$vs_label_fld];
 					}
-
 					$va_return["nonpreferred_labels"][] = $va_label;
 				}
 			}
 		}
-
 		// representations for representable stuff
 		if($t_instance instanceof RepresentableBaseModel) {
 			$va_reps = $t_instance->getRepresentations();
@@ -384,7 +348,6 @@ class ItemService extends BaseJSONService {
 				$va_return['representations'] = $va_reps;
 			}
 		}
-
 		// captions for representations
 		if($this->ops_table == "ca_object_representations") {
 			$va_captions = $t_instance->getCaptionFileList();
@@ -392,13 +355,12 @@ class ItemService extends BaseJSONService {
 				$va_return['captions'] = $va_captions;
 			}
 		}
-
 		// attributes
 		$va_codes = $t_instance->getApplicableElementCodes();
 		foreach($va_codes as $vs_code) {
 			if($va_vals = $t_instance->get($this->ops_table.".".$vs_code,
 				array("returnWithStructure" => true, "returnAllLocales" => true, "convertCodesToDisplayText" => false))
-			 ){
+			){
 				$va_vals_by_locale = end($va_vals); // I seriously have no idea what that additional level of nesting in the return format is for
 				foreach($va_vals_by_locale as $vn_locale_id => $va_locale_vals) {
 					foreach($va_locale_vals as $vs_val_id => $va_actual_data) {
@@ -406,27 +368,25 @@ class ItemService extends BaseJSONService {
 							continue;
 						}
 						$vs_locale_code = isset($va_locales[$vn_locale_id]["code"]) ? $va_locales[$vn_locale_id]["code"] : "none";
-
 						$va_return['attributes'][$vs_code][] = array_merge(array('locale' => $vs_locale_code),$va_actual_data);
 					}
-
 				}
 			}
 		}
-
 		// relationships
 		// yes, not all combinations between these tables have
 		// relationships but it also doesn't hurt to query
 		foreach($this->opa_valid_tables as $vs_rel_table) {
-
+			$vs_get_spec = $vs_rel_table;
+			if($vs_rel_table == $this->ops_table) {
+				$vs_get_spec = $vs_rel_table . '.related';
+			}
 			//
 			// set-related hacks
 			if($this->ops_table == "ca_sets" && $vs_rel_table=="ca_tours") { // throw SQL error in getRelatedItems
 				continue;
 			}
-
-			$va_related_items = $t_instance->get($vs_rel_table, array("returnWithStructure" => true));
-
+			$va_related_items = $t_instance->get($vs_get_spec, array("returnWithStructure" => true));
 			if(is_array($va_related_items) && sizeof($va_related_items)>0) {
 				// most of the fields are usually empty because they are not supported on UI level
 				foreach($va_related_items as $va_rel_item) {
@@ -448,7 +408,6 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		return $va_return;
 	}
 	# -------------------------------------------------------
@@ -459,10 +418,8 @@ class ItemService extends BaseJSONService {
 		if(!($t_instance = $this->_getTableInstance($this->ops_table,$this->opn_id))) {
 			return false;
 		}
-
 		$t_list = new ca_lists();
 		$t_locales = new ca_locales();
-
 		//
 		// Options
 		//
@@ -470,17 +427,13 @@ class ItemService extends BaseJSONService {
 		if (!($vs_flatten = $this->opo_request->getParameter('flatten', pString))) { $vs_flatten = null; }
 		$va_flatten = preg_split("![ ]*[;]+[ ]*!", $vs_flatten);
 		$va_flatten = array_flip($va_flatten);
-
 		$va_locales = $t_locales->getLocaleList(array("available_for_cataloguing_only" => true));
-
 		$va_return = array();
-
 		// allow user-defined template to be passed; allows flexible formatting of returned "display" value
 		if (!($vs_template = $this->opo_request->getParameter('template', pString))) { $vs_template = ''; }
 		if ($vs_template) {
 			$va_return['display'] = caProcessTemplateForIDs($vs_template, $this->ops_table, array($this->opn_id));
 		}
-
 		// "intrinsic" fields
 		foreach($t_instance->getFieldsArray() as $vs_field_name => $va_field_info) {
 			$vs_list = null;
@@ -488,7 +441,6 @@ class ItemService extends BaseJSONService {
 				if(preg_match("/^hier\_/",$vs_field_name)) { continue; }
 				if(preg_match("/\_sort$/",$vs_field_name)) { continue; }
 				//if($vs_field_name == $t_instance->primaryKey()) { continue; }
-
 				if(isset($va_field_info["LIST_CODE"])) { // typical example: type_id
 					$va_item = $t_list->getItemFromListByItemID($va_field_info["LIST_CODE"],$vs_val);
 					if ($t_item = new ca_list_items($va_item["item_id"])) {
@@ -507,35 +459,28 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		// preferred labels
 		$va_labels = $t_instance->get($this->ops_table.".preferred_labels",array("returnWithStructure" => true, "returnAllLocales" => true));
 		$va_labels = end($va_labels);
-
 		$vs_display_field_name = $t_instance->getLabelDisplayField();
-
 		if(is_array($va_labels)) {
 			foreach($va_labels as $vn_locale_id => $va_labels_by_locale) {
 				foreach($va_labels_by_locale as $va_tmp) {
 					$va_label = array();
 					$va_label['locale'] = $va_locales[$vn_locale_id]["code"];
-
 					// add only UI fields to return
 					foreach(array_merge($t_instance->getLabelUIFields(), array('type_id')) as $vs_label_fld) {
 						$va_label[$vs_label_fld] = $va_tmp[$vs_label_fld];
 					}
 					$va_label[$vs_label_fld] = $va_tmp[$vs_label_fld];
 					$va_label['label'] = $va_tmp[$vs_display_field_name];
-
 					$va_return["preferred_labels"][$va_label['locale']] = $va_label;
 				}
 			}
-
 			if (isset($va_flatten['locales'])) {
 				$va_return["preferred_labels"] = array_pop(caExtractValuesByUserLocale(array($va_return["preferred_labels"])));
 			}
 		}
-
 		// nonpreferred labels
 		$va_labels = $t_instance->get($this->ops_table.".nonpreferred_labels",array("returnWithStructure" => true, "returnAllLocales" => true));
 		$va_labels = end($va_labels);
@@ -544,28 +489,23 @@ class ItemService extends BaseJSONService {
 				foreach($va_labels_by_locale as $va_tmp) {
 					$va_label = array();
 					$va_label['locale'] = $va_locales[$vn_locale_id]["code"];
-
 					// add only UI fields to return
 					foreach(array_merge($t_instance->getLabelUIFields(), array('type_id')) as $vs_label_fld) {
 						$va_label[$vs_label_fld] = $va_tmp[$vs_label_fld];
 					}
-
 					$va_return["nonpreferred_labels"][$va_label['locale']] = $va_label;
 				}
 			}
-
 			if (isset($va_flatten['locales'])) {
 				$va_return["nonpreferred_labels"] = array_pop(caExtractValuesByUserLocale(array($va_return["nonpreferred_labels"])));
 			}
 		}
-
 		// attributes
 		$va_codes = $t_instance->getApplicableElementCodes();
 		foreach($va_codes as $vs_code) {
-
 			if($va_vals = $t_instance->get($this->ops_table.".".$vs_code,
 				array("convertCodesToDisplayText" => false, "returnWithStructure" => true, "returnAllLocales" => true))
-			 ){
+			){
 				$va_vals_as_text = end($t_instance->get($this->ops_table.".".$vs_code,
 					array("convertCodesToDisplayText" => true, "returnWithStructure" => true, "returnAllLocales" => true)));
 				$va_vals_by_locale = end($va_vals);
@@ -574,20 +514,15 @@ class ItemService extends BaseJSONService {
 						if(!is_array($va_actual_data)) {
 							continue;
 						}
-
 						$vs_locale_code = isset($va_locales[$vn_locale_id]["code"]) ? $va_locales[$vn_locale_id]["code"] : "none";
-
 						foreach($va_actual_data as $vs_f => $vs_v) {
 							if (isset($va_vals_as_text[$vn_locale_id][$vs_val_id][$vs_f]) && ($vs_v != $va_vals_as_text[$vn_locale_id][$vs_val_id][$vs_f])) {
 								$va_actual_data[$vs_f.'_display'] = $va_vals_as_text[$vn_locale_id][$vs_val_id][$vs_f];
-
 								if ($vs_item_idno = caGetListItemIdno($va_actual_data[$vs_f])) {
 									$va_actual_data[$vs_f] = $vs_item_idno;
 								}
 							}
 						}
-
-
 						$va_return['attributes'][$vs_code][$vs_locale_code][] = array_merge(array('locale' => $vs_locale_code),$va_actual_data);
 					}
 				}
@@ -596,22 +531,22 @@ class ItemService extends BaseJSONService {
 		if (isset($va_flatten['locales'])) {
 			$va_return['attributes'] = caExtractValuesByUserLocale($va_return['attributes']);
 		}
-
 		// relationships
 		// yes, not all combinations between these tables have
 		// relationships but it also doesn't hurt to query
 		foreach($this->opa_valid_tables as $vs_rel_table) {
+			$vs_get_spec = $vs_rel_table;
+			if($vs_rel_table == $this->ops_table) {
+				$vs_get_spec = $vs_rel_table . '.related';
+			}
 			//
 			// set-related hacks
 			if(($this->ops_table == "ca_sets") && ($vs_rel_table=="ca_tours")) { // throw SQL error in getRelatedItems
 				continue;
 			}
-
-			$va_related_items = $t_instance->get($vs_rel_table,array("returnWithStructure" => true, 'useLocaleCodes' => true, 'groupFields' => true));
-
+			$va_related_items = $t_instance->get($vs_get_spec,array("returnWithStructure" => true, 'useLocaleCodes' => true, 'groupFields' => true));
 			if(($this->ops_table == "ca_objects") && ($vs_rel_table=="ca_object_representations")) {
 				$va_versions = $t_instance->getMediaVersions('media');
-
 				if (isset($va_flatten['all'])) {
 					$va_reps = $t_instance->getRepresentations(array('original'));
 					$va_urls = array();
@@ -622,7 +557,6 @@ class ItemService extends BaseJSONService {
 				} else {
 					$va_return['representations'] = $t_instance->getRepresentations($va_versions);
 				}
-
 				if(is_array($va_return['representations'])) {
 					foreach($va_return['representations'] as $vn_i => $va_rep) {
 						unset($va_return['representations'][$vn_i]['media']);
@@ -630,7 +564,6 @@ class ItemService extends BaseJSONService {
 					}
 				}
 			}
-
 			if(is_array($va_related_items) && sizeof($va_related_items)>0) {
 				foreach($va_related_items as $va_rel_item) {
 					$va_item_add = array();
@@ -664,7 +597,6 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		return $va_return;
 	}
 	# -------------------------------------------------------
@@ -681,10 +613,8 @@ class ItemService extends BaseJSONService {
 		if(!($t_instance = $this->_getTableInstance($ps_table))) {
 			return false;
 		}
-
 		$t_locales = new ca_locales();
 		if(!$pa_data || !is_array($pa_data)) { $pa_data = $this->getRequestBodyArray(); }
-
 		// intrinsic fields
 		if(is_array($pa_data["intrinsic_fields"]) && sizeof($pa_data["intrinsic_fields"])) {
 			foreach($pa_data["intrinsic_fields"] as $vs_field_name => $vs_value) {
@@ -694,7 +624,6 @@ class ItemService extends BaseJSONService {
 			$this->addError(_t("No intrinsic fields specified"));
 			return false;
 		}
-
 		// attributes
 		if(is_array($pa_data["attributes"]) && sizeof($pa_data["attributes"])) {
 			foreach($pa_data["attributes"] as $vs_attribute_name => $va_values) {
@@ -707,17 +636,13 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		$t_instance->setMode(ACCESS_WRITE);
 		$t_instance->insert();
-
 		if(!$t_instance->getPrimaryKey()) {
 			$this->opa_errors = array_merge($t_instance->getErrors(),$this->opa_errors);
 			return false;
 		}
-
 		// AFTER INSERT STUFF
-
 		// preferred labels
 		if(is_array($pa_data["preferred_labels"]) && sizeof($pa_data["preferred_labels"])) {
 			foreach($pa_data["preferred_labels"] as $va_label) {
@@ -728,7 +653,6 @@ class ItemService extends BaseJSONService {
 				$t_instance->addLabel($va_label,$vn_locale_id,null,true);
 			}
 		}
-
 		// nonpreferred labels
 		if(is_array($pa_data["nonpreferred_labels"]) && sizeof($pa_data["nonpreferred_labels"])) {
 			foreach($pa_data["nonpreferred_labels"] as $va_label) {
@@ -745,7 +669,6 @@ class ItemService extends BaseJSONService {
 				$t_instance->addLabel($va_label,$vn_locale_id,$vn_type_id,false);
 			}
 		}
-
 		// relationships
 		if(is_array($pa_data["related"]) && sizeof($pa_data["related"])>0) {
 			foreach($pa_data["related"] as $vs_table => $va_relationships) {
@@ -761,17 +684,12 @@ class ItemService extends BaseJSONService {
 						$vs_source_info = isset($va_relationship["source_info"]) ? $va_relationship["source_info"] : null;
 						$vs_effective_date = isset($va_relationship["effective_date"]) ? $va_relationship["effective_date"] : null;
 						$vs_direction = isset($va_relationship["direction"]) ? $va_relationship["direction"] : null;
-
 						$t_rel_instance = $this->_getTableInstance($vs_table);
-
 						$vs_pk = isset($va_relationship[$t_rel_instance->primaryKey()]) ? $va_relationship[$t_rel_instance->primaryKey()] : null;
 						$vs_type_id = isset($va_relationship["type_id"]) ? $va_relationship["type_id"] : null;
-
 						$t_rel = $t_instance->addRelationship($vs_table,$vs_pk,$vs_type_id,$vs_effective_date,$vs_source_info,$vs_direction);
-
 						// deal with interstitial attributes
 						if($t_rel instanceof BaseRelationshipModel) {
-
 							$vb_have_to_update = false;
 							if(is_array($va_relationship["attributes"]) && sizeof($va_relationship["attributes"])) {
 								foreach($va_relationship["attributes"] as $vs_attribute_name => $va_values) {
@@ -785,7 +703,6 @@ class ItemService extends BaseJSONService {
 									}
 								}
 							}
-
 							if($vb_have_to_update) {
 								$t_rel->setMode(ACCESS_WRITE);
 								$t_rel->update();
@@ -794,15 +711,12 @@ class ItemService extends BaseJSONService {
 					}
 				}
 			}
-
 			if(($t_instance instanceof RepresentableBaseModel) && isset($pa_data['representations']) && is_array($pa_data['representations'])) {
 				foreach($pa_data['representations'] as $va_rep) {
 					if(!isset($va_rep['media']) || (!file_exists($va_rep['media']) && !isURL($va_rep['media']))) { continue; }
-
 					if(!($vn_rep_locale_id = $t_locales->localeCodeToID($va_rep['locale']))) {
 						$vn_rep_locale_id = $t_locales->localeCodeToID('en_US');
 					}
-
 					$t_instance->addRepresentation(
 						$va_rep['media'],
 						caGetOption('type', $va_rep, 'front'), // this might be retarded but most people don't change the representation type list
@@ -815,7 +729,6 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		if($t_instance->numErrors()>0) {
 			foreach($t_instance->getErrors() as $vs_error) {
 				$this->addError($vs_error);
@@ -835,17 +748,14 @@ class ItemService extends BaseJSONService {
 		if(!($t_instance = $this->_getTableInstance($this->ops_table,$this->opn_id))) {
 			return false;
 		}
-
 		$t_locales = new ca_locales();
 		$va_post = $this->getRequestBodyArray();
-
 		// intrinsic fields
 		if(is_array($va_post["intrinsic_fields"]) && sizeof($va_post["intrinsic_fields"])) {
 			foreach($va_post["intrinsic_fields"] as $vs_field_name => $vs_value) {
 				$t_instance->set($vs_field_name,$vs_value);
 			}
 		}
-
 		// attributes
 		if(is_array($va_post["remove_attributes"])) {
 			foreach($va_post["remove_attributes"] as $vs_code_to_delete) {
@@ -854,7 +764,6 @@ class ItemService extends BaseJSONService {
 		} else if ($va_post["remove_all_attributes"]) {
 			$t_instance->removeAttributes();
 		}
-
 		if(is_array($va_post["attributes"]) && sizeof($va_post["attributes"])) {
 			foreach($va_post["attributes"] as $vs_attribute_name => $va_values) {
 				foreach($va_values as $va_value) {
@@ -866,17 +775,13 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		$t_instance->setMode(ACCESS_WRITE);
 		$t_instance->update();
-
 		// AFTER UPDATE STUFF
-
 		// yank all labels?
 		if ($va_post["remove_all_labels"]) {
 			$t_instance->removeAllLabels();
 		}
-
 		// preferred labels
 		if(is_array($va_post["preferred_labels"]) && sizeof($va_post["preferred_labels"])) {
 			foreach($va_post["preferred_labels"] as $va_label) {
@@ -887,7 +792,6 @@ class ItemService extends BaseJSONService {
 				$t_instance->addLabel($va_label,$vn_locale_id,null,true);
 			}
 		}
-
 		// nonpreferred labels
 		if(is_array($va_post["nonpreferred_labels"]) && sizeof($va_post["nonpreferred_labels"])) {
 			foreach($va_post["nonpreferred_labels"] as $va_label) {
@@ -904,37 +808,29 @@ class ItemService extends BaseJSONService {
 				$t_instance->addLabel($va_label,$vn_locale_id,$vn_type_id,false);
 			}
 		}
-
 		// relationships
 		if (is_array($va_post["remove_relationships"])) {
 			foreach($va_post["remove_relationships"] as $vs_table) {
 				$t_instance->removeRelationships($vs_table);
 			}
 		}
-
 		if($va_post["remove_all_relationships"]) {
 			foreach($this->opa_valid_tables as $vs_table) {
 				$t_instance->removeRelationships($vs_table);
 			}
 		}
-
 		if(is_array($va_post["related"]) && sizeof($va_post["related"])>0) {
 			foreach($va_post["related"] as $vs_table => $va_relationships) {
 				foreach($va_relationships as $va_relationship) {
 					$vs_source_info = isset($va_relationship["source_info"]) ? $va_relationship["source_info"] : null;
 					$vs_effective_date = isset($va_relationship["effective_date"]) ? $va_relationship["effective_date"] : null;
 					$vs_direction = isset($va_relationship["direction"]) ? $va_relationship["direction"] : null;
-
 					$t_rel_instance = $this->_getTableInstance($vs_table);
-
 					$vs_pk = isset($va_relationship[$t_rel_instance->primaryKey()]) ? $va_relationship[$t_rel_instance->primaryKey()] : null;
 					$vs_type_id = isset($va_relationship["type_id"]) ? $va_relationship["type_id"] : null;
-
 					$t_rel = $t_instance->addRelationship($vs_table,$vs_pk,$vs_type_id,$vs_effective_date,$vs_source_info,$vs_direction);
-
 					// deal with interstitial attributes
 					if($t_rel instanceof BaseRelationshipModel) {
-
 						$vb_have_to_update = false;
 						if(is_array($va_relationship["attributes"]) && sizeof($va_relationship["attributes"])) {
 							foreach($va_relationship["attributes"] as $vs_attribute_name => $va_values) {
@@ -948,7 +844,6 @@ class ItemService extends BaseJSONService {
 								}
 							}
 						}
-
 						if($vb_have_to_update) {
 							$t_rel->setMode(ACCESS_WRITE);
 							$t_rel->update();
@@ -957,7 +852,6 @@ class ItemService extends BaseJSONService {
 				}
 			}
 		}
-
 		if($t_instance->numErrors()>0) {
 			foreach($t_instance->getErrors() as $vs_error) {
 				$this->addError($vs_error);
@@ -966,23 +860,17 @@ class ItemService extends BaseJSONService {
 		} else {
 			return array($t_instance->primaryKey() => $t_instance->getPrimaryKey());
 		}
-
 	}
 	# -------------------------------------------------------
 	private function deleteItem() {
 		if(!($t_instance = $this->_getTableInstance($this->ops_table,$this->opn_id))) {
 			return false;
 		}
-
 		$va_post = $this->getRequestBodyArray();
-
 		$vb_delete_related = isset($va_post["delete_related"]) ? $va_post["delete_related"] : false;
 		$vb_hard_delete = isset($va_post["hard"]) ? $va_post["hard"] : false;
-
 		$t_instance->setMode(ACCESS_WRITE);
 		$t_instance->delete($vb_delete_related,array("hard" => $vb_hard_delete));
-
-
 		if($t_instance->numErrors()>0) {
 			foreach($t_instance->getErrors() as $vs_error) {
 				$this->addError($vs_error);

@@ -206,8 +206,14 @@ class RequestDispatcher extends BaseObject {
 							// dispatch because in that case logging in requires running actual controller code. 
 							// this is bad practice and should be removed once the old API is no longer supported.
 							if(!$this->opo_request->isServiceAuthRequest()) {
-								$this->opo_response->setHTTPResponseCode(401,_t("Access denied"));
-								$this->opo_response->addHeader('WWW-Authenticate','Basic realm="CollectiveAccess Service API"');
+//								$this->opo_response->setHTTPResponseCode(401,_t("Access denied"));
+//								$this->opo_response->addHeader('WWW-Authenticate','Basic realm="CollectiveAccess Service API"');
+
+								$this->opo_response->setHTTPResponseCode(200);
+								$this->opo_response->addHeader('Content-Type',' application/json');
+								$this->opo_response->setContent(json_encode(array('ok' => 'false','errors' => array('Access denied','code' => 'ACCESS_DENIED'))));
+
+
 								return true; // this is kinda stupid but otherwise the "error redirect" code of AppController kicks in, which is not what we want here!
 							}
 							break;
