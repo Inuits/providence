@@ -211,7 +211,7 @@ class RequestDispatcher extends BaseObject {
 
 								$this->opo_response->setHTTPResponseCode(200);
 								$this->opo_response->addHeader('Content-Type',' application/json');
-								$this->opo_response->setContent(json_encode(array('ok' => 'false','errors' => array('Access denied','code' => 'ACCESS_DENIED'))));
+								$this->opo_response->setContent(json_encode(array('ok' => false,'errors' => array('Access denied','code' => 'ACCESS_DENIED'))));
 
 
 								return true; // this is kinda stupid but otherwise the "error redirect" code of AppController kicks in, which is not what we want here!
