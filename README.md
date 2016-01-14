@@ -1,4 +1,4 @@
-CollectiveAccess README
+CollectiveAcgit cess README
 -----------------------
 
 [![Build Status](https://secure.travis-ci.org/collectiveaccess/providence.png?branch=develop)](http://travis-ci.org/collectiveaccess/providence)
