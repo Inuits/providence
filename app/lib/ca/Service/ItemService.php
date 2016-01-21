@@ -247,6 +247,7 @@ class ItemService extends BaseJSONService {
 			if($vs_rel_table == $this->ops_table) {
 				$vs_get_spec = $vs_rel_table . '.related';
 			}
+
 			//
 			// set-related hacks
 			if($this->ops_table == "ca_sets" && $vs_rel_table=="ca_tours") { // throws SQL error in getRelatedItems
@@ -267,6 +268,7 @@ class ItemService extends BaseJSONService {
 			}
 			// end set-related hacks
 			//
+
 			$va_related_items = $t_instance->get($vs_get_spec, array("returnWithStructure" => true));
 			$t_rel_instance = $o_dm->getInstance($vs_rel_table);
 			if(is_array($va_related_items) && sizeof($va_related_items)>0) {
@@ -381,12 +383,15 @@ class ItemService extends BaseJSONService {
 			if($vs_rel_table == $this->ops_table) {
 				$vs_get_spec = $vs_rel_table . '.related';
 			}
+
 			//
 			// set-related hacks
 			if($this->ops_table == "ca_sets" && $vs_rel_table=="ca_tours") { // throw SQL error in getRelatedItems
 				continue;
 			}
+
 			$va_related_items = $t_instance->get($vs_get_spec, array("returnWithStructure" => true));
+
 			if(is_array($va_related_items) && sizeof($va_related_items)>0) {
 				// most of the fields are usually empty because they are not supported on UI level
 				foreach($va_related_items as $va_rel_item) {
@@ -539,12 +544,15 @@ class ItemService extends BaseJSONService {
 			if($vs_rel_table == $this->ops_table) {
 				$vs_get_spec = $vs_rel_table . '.related';
 			}
+
 			//
 			// set-related hacks
 			if(($this->ops_table == "ca_sets") && ($vs_rel_table=="ca_tours")) { // throw SQL error in getRelatedItems
 				continue;
 			}
+
 			$va_related_items = $t_instance->get($vs_get_spec,array("returnWithStructure" => true, 'useLocaleCodes' => true, 'groupFields' => true));
+
 			if(($this->ops_table == "ca_objects") && ($vs_rel_table=="ca_object_representations")) {
 				$va_versions = $t_instance->getMediaVersions('media');
 				if (isset($va_flatten['all'])) {
