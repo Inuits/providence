@@ -1,0 +1,53 @@
+<project name="absca" default="fpm:package" basedir="..">
+
+    <description>
+        Build the debian package using FPM of abs-collectiveaccess for UGent.
+    </description>
+
+    <property file="${basedir}/ugent/build.properties" />
+
+    <fileset id="fpm.package_files" dir="${basedir}">
+        <exclude name="**/.git/**" />
+        <exclude name="**/.gitignore" />
+        <exclude name="ugent/**" />
+        <exclude name=".idea/**" />
+    </fileset>
+
+    <target name="-fpm:clean">
+        <delete dir="${fpm.builddir}" />
+        <delete dir="${fpm.distdir}" />
+    </target>
+
+    <target name="-fpm:prepare" depends="-fpm:clean">
+        <mkdir dir="${fpm.builddir}" />
+
+        <copy todir="${fpm.builddir}">
+            <fileset refid="fpm.package_files" />
+        </copy>
+    </target>
+
+    <target name="fpm:package" depends="-fpm:prepare" description="Create the debian package using FPM">
+        <exec executable="fpm" dir="${fpm.builddir}">
+            <arg line="-n ${fpm.packagename}" />
+            <arg line="-v ${fpm.version}" />
+            <arg line="--iteration ${fpm.minorVersion}"/>
+            <arg line="-t ${fpm.packagetype}" />
+            <arg line="-s dir" />
+            <arg line="-a all" />
+            <arg line="--prefix ${fpm.prefix}" />
+            <arg line="${fpm.preinst}" />
+            <arg line="${fpm.postinst}" />
+            <arg line='--vendor "${fpm.vendor}"' />
+            <arg line='-m "${fpm.maintainer}"' />
+            <arg line='--description "${fpm.description}"' />
+            <arg line='--url "${fpm.url}"' />
+            <arg line="." />
+        </exec>
+        <mkdir dir="${fpm.distdir}" />
+        <move todir="${fpm.distdir}">
+            <fileset dir="${fpm.builddir}">
+                <include name="*.deb"/>
+            </fileset>
+        </move>
+    </target>
+</project>
