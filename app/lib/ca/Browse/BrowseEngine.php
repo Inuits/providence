@@ -959,11 +959,12 @@
 			if ($this->opo_ca_browse_cache->load($vs_cache_key)) {
 
 				$vn_created_on = $this->opo_ca_browse_cache->getParameter('created_on'); //$t_new_browse->get('created_on', array('getDirectDate' => true));
+				$vn_cache_timeout = (int) $this->opo_ca_browse_config->get('cache_timeout');
 
 				$va_criteria = $this->getCriteria();
-				if (!$vb_no_cache && (intval(time() - $vn_created_on) < $this->opo_ca_browse_config->get('cache_timeout'))) {
+				if (!$vb_no_cache && (intval(time() - $vn_created_on) < $vn_cache_timeout)) {
 					$vb_results_cached = true;
-					$this->opo_ca_browse_cache->setParameter('created_on', time() + $this->opo_ca_browse_config->get('cache_timeout'));
+					$this->opo_ca_browse_cache->setParameter('created_on', time() + $vn_cache_timeout);
 					$vb_need_to_save_in_cache = true;
 
 					Debug::msg("Cache hit for {$vs_cache_key}");
@@ -1287,6 +1288,12 @@
 													$va_item_ids[] = (int)$vs_v;
 													$va_attr_sql[] = "(ca_attribute_values.{$vs_f} IN (?))";
 													$va_attr_values[] = $va_item_ids;
+												} elseif($vn_datatype == __CA_ATTRIBUTE_VALUE_INFORMATIONSERVICE__) {
+													if($vs_f == '_dont_save') {
+														$va_attr_sql[] = "(ca_attribute_values.value_longtext1 = ?)";
+														$va_attr_values[] = $vn_row_id;
+														break;
+													}
 												} else {
 													$va_attr_sql[] = "(ca_attribute_values.{$vs_f} ".(is_null($vs_v) ? " IS " : " = ")." ?)";
 													$va_attr_values[] = $vs_v;
