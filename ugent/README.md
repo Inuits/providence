@@ -1,10 +1,12 @@
-Build UGent ABS CollectiveAccess README
----------------------------------------
+Build and push UGent ABS CollectiveAccess README
+------------------------------------------------
 
 Check the Current Build Status on https://build.ugent.be/browse/ABS-CA
 
 This build uses an ant script to package the CollectiveAccess code into a
-debian package for UGent, which can be stored in a UGent debian repo.
+debian package for UGent.
+
+It then pushes this debian package to a UGent TST debian repo automatically.
 
 The application can later be deployed on a application server by installing
 this debian package from the UGent debian repo.
@@ -12,8 +14,9 @@ this debian package from the UGent debian repo.
 
 Usage:
 ------
-- Adapt the build.properties, especially the minorVersion should be incremented
-if you want to install a new version.
+- Adapt the build.properties.
+Remark: The minorVersion should NOT be set if the UGent Bamboo is used
+because the build number will be automaticcaly used as minorVersion.
 - Build the package with "ant fpm:package"
 - The .deb package can be found in ugent/dist and is ready to be uploaded to
 the UGent debian repo
