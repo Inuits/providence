@@ -1,7 +1,10 @@
+[1;34mCollectiveAccess 1.6.1 (126/GIT) Utilities
+(c) 2013-2016 Whirl-i-Gig[0m
+
 <?xml version="1.0" encoding="utf-8"?>
-<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="profile.xsd" useForConfiguration="1" base="base" infoUrl="">
+<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="profile.xsd" useForConfiguration="1" infoUrl="">
   <profileName>collectiveaccess</profileName>
-  <profileDescription>Profile created on March 1 2016 at 4:40:05 by CollectiveAccess Administrator</profileDescription>
+  <profileDescription/>
   <locales>
     <locale lang="en" country="US">English</locale>
     <locale lang="en" country="CA" dontUseForCataloguing="1">English (Canadian)</locale>
@@ -26665,7 +26668,7 @@
         <setting name="displayDelimiter">;</setting>
       </settings>
       <elements>
-        <metadataElement code="creationnumber_nr" datatype="Text">
+        <metadataElement code="model_series_nr" datatype="Text">
           <labels>
             <label locale="en_US">
               <name>Number</name>
@@ -26686,7 +26689,12 @@
             <setting name="suggestExistingValueSort">value</setting>
             <setting name="canBeUsedInSearchForm">1</setting>
             <setting name="canBeUsedInDisplay">1</setting>
-            <setting name="displayDelimiter">;</setting>
+            <setting name="regex"/>
+            <setting name="default_text"/>
+            <setting name="canMakePDF">0</setting>
+            <setting name="canMakePDFForValue">0</setting>
+            <setting name="isDependentValue">0</setting>
+            <setting name="dependentValueTemplate"/>
           </settings>
         </metadataElement>
         <metadataElement code="model_series_type" datatype="List" list="creation_number_types">
@@ -27728,6 +27736,11 @@
             <setting name="maxColumns">3</setting>
             <setting name="canBeUsedInSearchForm">1</setting>
             <setting name="canBeUsedInDisplay">1</setting>
+            <setting name="nullOptionText">Not set</setting>
+            <setting name="useDefaultWhenNull">0</setting>
+            <setting name="auto_shrink">0</setting>
+            <setting name="canMakePDF">0</setting>
+            <setting name="canMakePDFForValue">0</setting>
           </settings>
         </metadataElement>
       </elements>
@@ -27900,6 +27913,11 @@
             <setting name="requireValue">1</setting>
             <setting name="render">select</setting>
             <setting name="maxColumns">3</setting>
+            <setting name="nullOptionText">Not set</setting>
+            <setting name="useDefaultWhenNull">0</setting>
+            <setting name="auto_shrink">0</setting>
+            <setting name="canMakePDF">0</setting>
+            <setting name="canMakePDFForValue">0</setting>
           </settings>
         </metadataElement>
         <metadataElement code="otherSpecimens_typeStatus" datatype="List" list="biological_types">
@@ -27921,6 +27939,11 @@
             <setting name="maxColumns">3</setting>
             <setting name="canBeUsedInSearchForm">1</setting>
             <setting name="canBeUsedInDisplay">1</setting>
+            <setting name="nullOptionText">Not set</setting>
+            <setting name="useDefaultWhenNull">0</setting>
+            <setting name="auto_shrink">0</setting>
+            <setting name="canMakePDF">0</setting>
+            <setting name="canMakePDFForValue">0</setting>
           </settings>
         </metadataElement>
         <metadataElement code="otherSpecimens_lifeStage" datatype="List" list="lifestage_types">
@@ -28802,7 +28825,7 @@
         </restriction>
       </typeRestrictions>
     </metadataElement>
-    <metadataElement code="acq_brief" datatype="Text">
+    <metadataElement code="acqinfo_note" datatype="Text">
       <labels>
         <label locale="en_US">
           <name>Acquisition note</name>
@@ -29050,6 +29073,11 @@
             <setting name="maxColumns">3</setting>
             <setting name="canBeUsedInSearchForm">1</setting>
             <setting name="canBeUsedInDisplay">1</setting>
+            <setting name="nullOptionText">Not set</setting>
+            <setting name="useDefaultWhenNull">0</setting>
+            <setting name="auto_shrink">0</setting>
+            <setting name="canMakePDF">0</setting>
+            <setting name="canMakePDFForValue">0</setting>
           </settings>
         </metadataElement>
         <metadataElement code="specimens_lifeStage" datatype="List" list="lifestage_types">
@@ -29071,6 +29099,11 @@
             <setting name="maxColumns">3</setting>
             <setting name="canBeUsedInSearchForm">1</setting>
             <setting name="canBeUsedInDisplay">1</setting>
+            <setting name="nullOptionText">Not set</setting>
+            <setting name="useDefaultWhenNull">0</setting>
+            <setting name="auto_shrink">0</setting>
+            <setting name="canMakePDF">0</setting>
+            <setting name="canMakePDFForValue">0</setting>
           </settings>
         </metadataElement>
         <metadataElement code="specimens_typeStatus" datatype="List" list="biological_types">
@@ -29092,6 +29125,11 @@
             <setting name="maxColumns">3</setting>
             <setting name="canBeUsedInSearchForm">1</setting>
             <setting name="canBeUsedInDisplay">1</setting>
+            <setting name="nullOptionText">Not set</setting>
+            <setting name="useDefaultWhenNull">0</setting>
+            <setting name="auto_shrink">0</setting>
+            <setting name="canMakePDF">0</setting>
+            <setting name="canMakePDFForValue">0</setting>
           </settings>
         </metadataElement>
       </elements>
@@ -31548,6 +31586,11 @@
             <setting name="maxColumns">3</setting>
             <setting name="canBeUsedInSearchForm">1</setting>
             <setting name="canBeUsedInDisplay">1</setting>
+            <setting name="nullOptionText">Not set</setting>
+            <setting name="useDefaultWhenNull">0</setting>
+            <setting name="auto_shrink">0</setting>
+            <setting name="canMakePDF">0</setting>
+            <setting name="canMakePDFForValue">0</setting>
           </settings>
         </metadataElement>
       </elements>
@@ -31567,7 +31610,7 @@
     <userInterface code="loan_cataloguers_ui" type="ca_loans">
       <labels>
         <label locale="en_US">
-          <name>Lån redigerare</name>
+          <name>Loan editor</name>
         </label>
         <label locale="fr_FR">
           <name>Editeur de prêt</name>
@@ -31577,10 +31620,13 @@
         <screen idno="basic_out" default="1">
           <labels>
             <label locale="en_US">
-              <name>Grundläggande info</name>
+              <name>Loan form</name>
             </label>
             <label locale="fr_FR">
               <name>Informations basiques</name>
+            </label>
+            <label locale="nl_NL">
+              <name>Bruikleenformulier</name>
             </label>
           </labels>
           <typeRestrictions>
@@ -33642,6 +33688,9 @@
                 <setting name="sortDirection">ASC</setting>
               </settings>
             </placement>
+            <placement code="ca_attribute_classificationTer">
+              <bundle>ca_attribute_classificationTerm</bundle>
+            </placement>
             <placement code="ca_attribute_pid9">
               <bundle>ca_attribute_pid</bundle>
               <settings>
@@ -33837,6 +33886,9 @@
                 <setting name="maxRelationshipsPerRow"/>
                 <setting name="showCurrentOnly">0</setting>
               </settings>
+            </placement>
+            <placement code="ca_attribute_acq_brief8">
+              <bundle>ca_attribute_acq_brief</bundle>
             </placement>
             <placement code="ca_object_lots7">
               <bundle>ca_object_lots</bundle>
@@ -42313,7 +42365,6 @@
         <permission table="ca_objects" bundle="ca_attribute_diameter" access="edit"/>
         <permission table="ca_objects" bundle="ca_attribute_weight" access="edit"/>
         <permission table="ca_objects" bundle="ca_attribute_scale" access="edit"/>
-        <permission table="ca_objects" bundle="ca_attribute_acq_brief" access="edit"/>
         <permission table="ca_objects" bundle="ca_attribute_vernacularName" access="edit"/>
         <permission table="ca_objects" bundle="ca_attribute_conservation" access="edit"/>
         <permission table="ca_objects" bundle="ca_attribute_loan_history" access="edit"/>
@@ -42600,7 +42651,6 @@
         <permission table="ca_collections" bundle="ca_attribute_documentation" access="edit"/>
         <permission table="ca_collections" bundle="ca_attribute_ugent_collection" access="edit"/>
         <permission table="ca_collections" bundle="ca_attribute_usage" access="edit"/>
-        <permission table="ca_collections" bundle="ca_attribute_acq_brief" access="edit"/>
         <permission table="ca_collections" bundle="ca_attribute_target_audience" access="edit"/>
         <permission table="ca_collections" bundle="ca_attribute_skills" access="edit"/>
         <permission table="ca_collections" bundle="ca_attribute_extent_medium" access="edit"/>
@@ -42644,7 +42694,6 @@
         <permission table="ca_object_lots" bundle="ca_attribute_acqinfo_date" access="edit"/>
         <permission table="ca_object_lots" bundle="ca_attribute_acqinfo_method" access="edit"/>
         <permission table="ca_object_lots" bundle="ca_attribute_acqinfo_source" access="edit"/>
-        <permission table="ca_object_lots" bundle="ca_attribute_acq_brief" access="edit"/>
         <permission table="ca_object_lots" bundle="ca_attribute_acqinfo_price" access="edit"/>
         <permission table="ca_object_lots" bundle="ca_attribute_ugent_collection" access="edit"/>
         <permission table="ca_object_lots" bundle="ca_attribute_ownership_history" access="edit"/>
@@ -43234,19 +43283,19 @@
             <setting name="label" locale="en_US">Title</setting>
           </settings>
         </placement>
-        <placement code="p2">
+        <placement code="p11">
           <bundle>ca_objects.idno</bundle>
         </placement>
-        <placement code="p3">
+        <placement code="p21">
           <bundle>ca_objects.type_id</bundle>
         </placement>
-        <placement code="p4">
+        <placement code="p31">
           <bundle>ca_entity_labels.displayname</bundle>
         </placement>
-        <placement code="p5">
+        <placement code="p41">
           <bundle>ca_objects.access</bundle>
         </placement>
-        <placement code="p6">
+        <placement code="p51">
           <bundle>ca_objects.status</bundle>
         </placement>
       </bundlePlacements>
@@ -43267,25 +43316,25 @@
         <setting name="form_width">3</setting>
       </settings>
       <bundlePlacements>
-        <placement code="p7">
+        <placement code="p61">
           <bundle>ca_entity_labels.forename</bundle>
         </placement>
-        <placement code="p8">
+        <placement code="p71">
           <bundle>ca_entity_labels.middlename</bundle>
         </placement>
-        <placement code="p9">
+        <placement code="p81">
           <bundle>ca_entity_labels.surname</bundle>
         </placement>
-        <placement code="p10">
+        <placement code="p91">
           <bundle>ca_entities.idno</bundle>
         </placement>
-        <placement code="p11">
+        <placement code="p101">
           <bundle>ca_entities.type_id</bundle>
         </placement>
-        <placement code="p12">
+        <placement code="p111">
           <bundle>ca_entities.access</bundle>
         </placement>
-        <placement code="p13">
+        <placement code="p121">
           <bundle>ca_entities.status</bundle>
         </placement>
       </bundlePlacements>
@@ -43306,19 +43355,19 @@
         <setting name="form_width">3</setting>
       </settings>
       <bundlePlacements>
-        <placement code="p14">
+        <placement code="p131">
           <bundle>ca_place_labels.name</bundle>
         </placement>
-        <placement code="p15">
+        <placement code="p141">
           <bundle>ca_places.idno</bundle>
         </placement>
-        <placement code="p16">
+        <placement code="p151">
           <bundle>ca_places.type_id</bundle>
         </placement>
-        <placement code="p17">
+        <placement code="p161">
           <bundle>ca_places.access</bundle>
         </placement>
-        <placement code="p18">
+        <placement code="p171">
           <bundle>ca_places.status</bundle>
         </placement>
       </bundlePlacements>
@@ -43339,19 +43388,19 @@
         <setting name="form_width">3</setting>
       </settings>
       <bundlePlacements>
-        <placement code="p19">
+        <placement code="p181">
           <bundle>ca_occurrence_labels.name</bundle>
           <settings>
             <setting name="label" locale="en_US">Title</setting>
           </settings>
         </placement>
-        <placement code="p20">
+        <placement code="p191">
           <bundle>ca_occurrences.idno</bundle>
         </placement>
-        <placement code="p21">
+        <placement code="p201">
           <bundle>ca_places.access</bundle>
         </placement>
-        <placement code="p22">
+        <placement code="p211">
           <bundle>ca_places.status</bundle>
         </placement>
       </bundlePlacements>
@@ -43372,19 +43421,19 @@
         <setting name="form_width">3</setting>
       </settings>
       <bundlePlacements>
-        <placement code="p23">
+        <placement code="p221">
           <bundle>ca_collection_labels.name</bundle>
         </placement>
-        <placement code="p24">
+        <placement code="p231">
           <bundle>ca_collections.idno</bundle>
         </placement>
-        <placement code="p25">
+        <placement code="p241">
           <bundle>ca_collections.type_id</bundle>
         </placement>
-        <placement code="p26">
+        <placement code="p251">
           <bundle>ca_collections.access</bundle>
         </placement>
-        <placement code="p27">
+        <placement code="p261">
           <bundle>ca_collections.status</bundle>
         </placement>
       </bundlePlacements>
@@ -43405,10 +43454,10 @@
         <setting name="form_width">3</setting>
       </settings>
       <bundlePlacements>
-        <placement code="p28">
+        <placement code="p271">
           <bundle>ca_storage_location_labels.name</bundle>
         </placement>
-        <placement code="p29">
+        <placement code="p281">
           <bundle>ca_storage_locations.type_id</bundle>
         </placement>
       </bundlePlacements>
@@ -43429,13 +43478,13 @@
         <setting name="form_width">3</setting>
       </settings>
       <bundlePlacements>
-        <placement code="p30">
+        <placement code="p291">
           <bundle>ca_loan_labels.name</bundle>
         </placement>
-        <placement code="p31">
+        <placement code="p301">
           <bundle>ca_loans.type_id</bundle>
         </placement>
-        <placement code="p32">
+        <placement code="p311">
           <bundle>ca_loans.idno</bundle>
         </placement>
       </bundlePlacements>
@@ -43450,31 +43499,31 @@
         <setting name="form_width">5</setting>
       </settings>
       <bundlePlacements>
-        <placement code="p33">
+        <placement code="p321">
           <bundle>ca_object_lots.acqinfo_date</bundle>
           <settings>
             <setting name="width">100px</setting>
           </settings>
         </placement>
-        <placement code="p34">
+        <placement code="p331">
           <bundle>ca_object_lots.idno_stub</bundle>
           <settings>
             <setting name="width">100px</setting>
           </settings>
         </placement>
-        <placement code="p35">
+        <placement code="p341">
           <bundle>ca_object_lots.acqinfo_method</bundle>
           <settings>
             <setting name="width">100px</setting>
           </settings>
         </placement>
-        <placement code="p36">
+        <placement code="p351">
           <bundle>ca_object_lots.acqinfo_source</bundle>
           <settings>
             <setting name="width">100px</setting>
           </settings>
         </placement>
-        <placement code="p37">
+        <placement code="p361">
           <bundle>ca_entity_labels.displayname</bundle>
           <settings>
             <setting name="width">100px</setting>
@@ -43492,28 +43541,28 @@
         <setting name="form_width">9</setting>
       </settings>
       <bundlePlacements>
-        <placement code="p38">
+        <placement code="p371">
           <bundle>ca_objects.collection</bundle>
         </placement>
-        <placement code="p39">
+        <placement code="p381">
           <bundle>ca_objects.idno</bundle>
           <settings>
             <setting name="width">100px</setting>
           </settings>
         </placement>
-        <placement code="p40">
+        <placement code="p391">
           <bundle>ca_objects.genus</bundle>
           <settings>
             <setting name="width">100px</setting>
           </settings>
         </placement>
-        <placement code="p41">
+        <placement code="p401">
           <bundle>ca_objects.species_ss</bundle>
         </placement>
-        <placement code="p42">
+        <placement code="p411">
           <bundle>ca_objects.family_container</bundle>
         </placement>
-        <placement code="p43">
+        <placement code="p421">
           <bundle>ca_objects.classificationTerm</bundle>
           <settings>
             <setting name="width">100px</setting>
@@ -43531,19 +43580,19 @@
         <setting name="form_width">3</setting>
       </settings>
       <bundlePlacements>
-        <placement code="p44">
+        <placement code="p431">
           <bundle>ca_object_lots.disposal_date</bundle>
           <settings>
             <setting name="width">100px</setting>
           </settings>
         </placement>
-        <placement code="p45">
+        <placement code="p441">
           <bundle>ca_object_lots.disposal_method</bundle>
           <settings>
             <setting name="width">100px</setting>
           </settings>
         </placement>
-        <placement code="p46">
+        <placement code="p451">
           <bundle>ca_object_lots.idno_stub</bundle>
           <settings>
             <setting name="width">100px</setting>
@@ -43553,3 +43602,5 @@
     </searchForm>
   </searchForms>
 </profile>
+
+
