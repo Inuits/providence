@@ -1,6 +1,3 @@
-[1;34mCollectiveAccess 1.6.1 (126/GIT) Utilities
-(c) 2013-2016 Whirl-i-Gig[0m
-
 <?xml version="1.0" encoding="utf-8"?>
 <profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="profile.xsd" useForConfiguration="1" infoUrl="">
   <profileName>collectiveaccess</profileName>
@@ -43602,5 +43599,3 @@
     </searchForm>
   </searchForms>
 </profile>
-
-
