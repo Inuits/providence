@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2012-2014 Whirl-i-Gig
+ * Copyright 2012-2017 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -839,6 +839,24 @@ class ItemService extends BaseJSONService {
 					);
 				}
 			}
+		}
+		
+        if(($ps_table == 'ca_sets') && is_array($pa_data["set_content"]) && sizeof($pa_data["set_content"])>0) {
+            $vn_table_num = $t_instance->get('table_num');
+            if($t_set_table =  $this->opo_dm->getInstanceByTableNum($vn_table_num)) {
+                $vs_set_table = $t_set_table->tableName();
+                foreach($pa_data["set_content"] as $vs_idno) {
+                    if ($vn_set_item_id = $vs_set_table::find(['idno' => $vs_idno], ['returnAs' => 'firstId'])) {
+                        $t_instance->addItem($vn_set_item_id);
+                    }
+                }
+            }
+        }
+        
+        // Set ACL for newly created record
+		if ($t_instance->getAppConfig()->get('perform_item_level_access_checking') && !$t_instance->getAppConfig()->get("{$ps_table}_dont_do_item_level_access_control")) {
+			$t_instance->setACLUsers(array($this->opo_request->getUserID() => __CA_ACL_EDIT_DELETE_ACCESS__));
+			$t_instance->setACLWorldAccess($t_instance->getAppConfig()->get('default_item_access_level'));
 		}
 
 		if($t_instance->numErrors()>0) {
