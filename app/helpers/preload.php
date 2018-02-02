@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2008-2014 Whirl-i-Gig
+ * Copyright 2008-2015 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -20,7 +20,7 @@
  *
  * This source code is free and modifiable under the terms of
  * GNU General Public License. (http://www.gnu.org/copyleft/gpl.html). See
- * the 'license.txt' file for details, or visit the CollectiveAccess web site at
+ * the "license.txt" file for details, or visit the CollectiveAccess web site at
  * http://www.CollectiveAccess.org
  *
  * @package CollectiveAccess
@@ -47,7 +47,7 @@ require_once(__CA_APP_DIR__.'/helpers/initializeLocale.php');
 
 if (isset($_COOKIE['CA_'.__CA_APP_NAME__.'_ui_locale'])) {
 	$g_ui_locale = $_COOKIE['CA_'.__CA_APP_NAME__.'_ui_locale'];
-	initializeLocale($g_ui_locale);
+	if (!initializeLocale($g_ui_locale)) { $g_ui_locale = null; }
 }
 
 require_once(__CA_APP_DIR__.'/helpers/navigationHelpers.php');
@@ -70,8 +70,10 @@ require_once(__CA_MODELS_DIR__.'/ca_acl.php');
 
 require_once(__CA_LIB_DIR__.'/core/Cache/ExternalCache.php');
 require_once(__CA_LIB_DIR__.'/core/Cache/CompositeCache.php');
+require_once(__CA_LIB_DIR__.'/core/Cache/MemoryCache.php');
 
 require_once(__CA_APP_DIR__.'/lib/ca/GarbageCollection.php');
+require_once(__CA_APP_DIR__.'/helpers/guidHelpers.php');
 
 // initialize Tooltip manager
 TooltipManager::init();

@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2010 Whirl-i-Gig
+ * Copyright 2010-2016 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -35,7 +35,7 @@
 
 
 	if (!$va_facet||!$vs_facet_name) { 
-		print 'No facet defined'; 
+		print _t('No facet defined'); 
 		return;
 	}
 
@@ -66,7 +66,6 @@
 		# ------------------------------------------------------------
 		case 'hierarchical';
 ?>
-	<h2 class='browse'><?php print unicode_ucfirst($va_facet_info['label_plural']); ?></h2>
 	<div class='clearDivide'></div>
 	<!--- BEGIN HIERARCHY BROWSER --->
 	<div id="hierarchyBrowser" class='hierarchyBrowser'>
@@ -93,10 +92,10 @@
 					initDataUrl: '<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'getFacetHierarchyAncestorList', array('facet' => $vs_facet_name)); ?>',
 					
 					editUrl: '<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'addCriteria', array('facet' => $vs_facet_name, 'id' => '')); ?>',
-					editButtonIcon: '<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/buttons/glyphicons_223_chevron-right.png" border="0" title="<?php print _t("Browse with this term"); ?>">',
+					editButtonIcon: "<?php print caNavIcon(__CA_NAV_ICON_RIGHT_ARROW__ ,1); ?>",
 					
 					initItemID: '<?php print $this->getVar('browse_last_id'); ?>',
-					indicatorUrl: '<?php print $this->request->getThemeUrlPath(); ?>/graphics/icons/indicator.gif',
+					indicator: "<?php print caNavIcon(__CA_NAV_ICON_SPINNER__, 1); ?>",
 					
 					currentSelectionDisplayID: 'browseCurrentSelection'
 				});
@@ -189,7 +188,7 @@
 		# ------------------------------------------------------------
 	}
 ?>
-	<a href="#" onclick="$('#showRefine').show(); caUIBrowsePanel.hideBrowsePanel(); " class="browseSelectPanelButton"><?php print caNavIcon($this->request, __CA_NAV_BUTTON_COLLAPSE__); ?></a>
+	<a href="#" onclick="$('#showRefine').show(); caUIBrowsePanel.hideBrowsePanel(); " class="browseSelectPanelButton"><?php print caNavIcon(__CA_NAV_ICON_COLLAPSE__, '18px'); ?></a>
 	<div style='clear:both;width:100%'></div>
 
 </div>

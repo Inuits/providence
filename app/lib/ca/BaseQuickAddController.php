@@ -79,6 +79,9 @@
  				$this->opo_result_context->setParameter($t_subject->tableName().'_last_parent_id', $vn_parent_id);
  			}
  			
+ 			// Get user query
+			$this->view->setVar('q', preg_replace("!^[^:]*:!", "", $this->request->getParameter('q', pString)));
+ 			
  			//
  			// Is record of correct type?
  			// 
@@ -108,6 +111,28 @@
 					return;
 				}
 			}
+			
+			
+			if (is_array($va_prepopulate_quickadd_fields = explode(";", $this->request->getParameter('prepopulate_fields', pString)))) {
+				$va_prepopulate_quickadd_fields = array_filter($va_prepopulate_quickadd_fields, function($v) { return strlen($v); });
+				foreach($va_prepopulate_quickadd_fields as $vs_field) {
+					if ($t_subject->hasField($vs_field)) { $t_subject->set($vs_field, caUcFirstUTF8Safe($this->view->getVar('q'))); }
+				}
+			}
+			
+			if (!is_array($va_prepopulate_quickadd_fields) || !sizeof($va_prepopulate_quickadd_fields) || in_array('preferred_labels', $va_prepopulate_quickadd_fields)) {		
+				global $g_ui_locale_id;
+				$va_force_new_label = [
+					'locale_id' => $g_ui_locale_id, 									// use default locale
+					$t_subject->getLabelDisplayField() => caUcFirstUTF8Safe($this->view->getVar('q'))		// query text is used for display field
+				];
+				foreach($t_subject->getLabelUIFields() as $vn_i => $vs_fld) {
+					if ($vs_fld === $t_subject->getLabelDisplayField()) { continue; }
+					$va_force_new_label[$vs_fld] = '';
+				}						
+				$this->view->setVar('forceLabel', $va_force_new_label);
+			}
+			
  			
  			if(is_array($pa_values)) {
  				foreach($pa_values as $vs_key => $vs_val) {
@@ -147,7 +172,9 @@
  				}
  			}
  			$this->request->setParameter('type_id', $vn_type_id);
- 			$t_subject->set('type_id', $vn_type_id);
+			if($t_subject->hasField('type_id')) {
+				$t_subject->set('type_id', $vn_type_id);
+			}
  			
  			$t_ui = ca_editor_uis::loadDefaultUI($this->ops_table_name, $this->request, $vn_type_id, array('editorPref' => 'quickadd'));
  			if (!$t_ui) {
@@ -209,7 +236,6 @@
 			$this->view->setVar('fieldNamePrefix', $_REQUEST['_formName']);
 			$this->view->setVar('n', $vs_n);
 			
-			$this->view->setVar('q', $this->request->getParameter('q', pString));
 			
 			$this->view->setVar('default_parent_id', $this->opo_result_context->getParameter($t_subject->tableName().'_last_parent_id'));
 			
@@ -401,7 +427,7 @@
  				'table' => $t_subject->tableName(),
 				'type_id' => method_exists($t_subject, "getTypeID") ? $t_subject->getTypeID() : null,
 				'relation_id' => $vn_relation_id,
- 				'display' => $va_name['label'],
+ 				'display' => caStripTagsAndContent($va_name['label']),
  				'errors' => $va_error_list
  			);
  			
@@ -440,7 +466,9 @@
 			}
 			
 			// then set the empty row's type_id
-			$t_subject->set($t_subject->getTypeFieldName(), $vn_type_id);
+			if($vs_type_field_name = $t_subject->getTypeFieldName()) {
+				$t_subject->set($vs_type_field_name, $vn_type_id);
+			}
 			
 			// then reload the definitions (which includes bundle specs)
 			$t_subject->reloadLabelDefinitions();

@@ -38,7 +38,7 @@
 ?>
 		<div id="printButton">
 			<a href="<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), "PrintSummary", array($t_item->PrimaryKey() => $t_item->getPrimaryKey()))?>">
-				<?php print caNavIcon($this->request, __CA_NAV_BUTTON_PDF__); ?>
+				<?php print caNavIcon(__CA_NAV_ICON_PDF__, 2); ?>
 			</a>
 		</div>
 <?php
@@ -70,6 +70,38 @@
 			}
 			print "<div class=\"unit".$vs_class."\"><span class=\"heading".$vs_class."\">".$va_info['display'].":</span> ".$vs_display_value."</div>\n";
 		}
+		
+		
+		
+		if ($t_item->get('ca_collections.children.collection_id')) {
+			print "<div class='heading' style='margin-bottom:10px;'>".$t_item->get('ca_collections.type_id', array('convertCodesToDisplayText' => true))." Contents</div>";
+
+<<<<<<< HEAD
+			$va_hierarchy = $t_item->hierarchyWithTemplate("<l>^ca_collections.preferred_labels.name</l> (^ca_collections.idno)", array('collection_id' => $vn_item_id, 'sort' => 'ca_collections.idno'));
+=======
+			//
+			if (
+				(!is_array($va_sort_fields = $t_item->getAppConfig()->get('ca_collections_hierarchy_summary_sort_values')) && !sizeof($va_sort_fields))
+				&&
+				(!is_array($va_sort_fields = $t_item->getAppConfig()->get('ca_collections_hierarchy_browser_sort_values')) && !sizeof($va_sort_fields))
+			) {
+				$va_sort_fields = ['ca_collections.preferred_labels.name'];
+			}
+			if(
+				!($vs_template = $t_item->getAppConfig()->get('ca_collections_hierarchy_summary_display_settings'))
+				&&
+				!($vs_template = $t_item->getAppConfig()->get('ca_collections_hierarchy_browser_display_settings'))
+			) {
+				$vs_template = "<l>^ca_collections.preferred_labels.name</l> (^ca_collections.idno)";
+			}
+			
+			$va_hierarchy = $t_item->hierarchyWithTemplate($vs_template, array('collection_id' => $vn_item_id, 'sort' => $va_sort_fields));
+>>>>>>> e743dc39b6ac181b7535e2782dd10df9484a1d76
+			foreach($va_hierarchy as $vn_i => $va_hierarchy_item) {
+				$vs_margin = $va_hierarchy_item['level']*20;
+				print "<div style='margin-left:".$vs_margin."px;margin-bottom:10px;'><i class='fa fa-angle-right' ></i> ".$va_hierarchy_item['display']."</div>";
+			}
+		}		
 ?>
 			</td>
 			</td>

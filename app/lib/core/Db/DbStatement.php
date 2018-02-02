@@ -122,7 +122,7 @@ class DbStatement extends DbBase {
 	 * Executes a stored statement (this class also serves as PerparedStatement abstraction).
 	 * Options can be passed as arguments to this function.
 	 *
-	 * @return mixed result
+	 * @return DbResult|bool
 	 */
 	function execute() {
 		$this->clearErrors();
@@ -131,10 +131,10 @@ class DbStatement extends DbBase {
 			$va_args = $va_args[0];
 		}
 		
-		if ($vb_res = $this->opo_db->execute($this, $this->opo_native_statement ? $this->opo_native_statement : $this, $this->ops_sql, $va_args)) {
+		if ($vr_res = $this->opo_db->execute($this, $this->opo_native_statement ? $this->opo_native_statement : $this, $this->ops_sql, $va_args)) {
 			$this->opn_last_insert_id = $this->opo_db->getLastInsertID($this);
 		}
-		return $vb_res;
+		return $vr_res;
 	}
 
 	/**
@@ -142,12 +142,13 @@ class DbStatement extends DbBase {
 	 *
 	 * @see DbStatement::execute()
 	 * @param array $pa_params
+	 * @param array $pa_options
 	 * @return DbResult result
 	 */
-	function executeWithParamsAsArray($pa_params) {
+	function executeWithParamsAsArray($pa_params, $pa_options=null) {
 		$this->clearErrors();
 
-		if ($o_res = $this->opo_db->execute($this, $this->opo_native_statement ? $this->opo_native_statement : $this, $this->ops_sql, $pa_params)) {
+		if ($o_res = $this->opo_db->execute($this, $this->opo_native_statement ? $this->opo_native_statement : $this, $this->ops_sql, $pa_params, $pa_options)) {
 			$this->opn_last_insert_id = $this->opo_db->getLastInsertID($this);
 		}
 		return $o_res;

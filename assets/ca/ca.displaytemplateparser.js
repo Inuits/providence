@@ -6,7 +6,7 @@
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2014-2015 Whirl-i-Gig
+ * Copyright 2014-2017 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -55,34 +55,57 @@ var caUI = caUI || {};
             "oz": "ounces", "oz.": "ounces", "ounce": "ounces",
             "tons": "ton", "tonne": "ton", "tonnes": "ton", "t": "ton", "t." : "ton"
         };
+        
+        that.fractionTable = {
+        	"½": "1/2",
+        	"⅓": "1/3",
+        	"¼": "1/4",
+        	"⅛": "1/8",
+        	"⅔": "2/3",
+        	"¾": "3/4",
+        	"⅜": "3/8",
+        	"⅝": "5/8",
+        	"⅞": "7/8",
+        	"⅒": "1/10"
+        }
         // --------------------------------------------------------------------------------
         // Define methods
         // --------------------------------------------------------------------------------
-        that.processDependentTemplate = function(template, values) {
+        that.processDependentTemplate = function(template, values, init) {
         	if (!template) return '';
             var t = template;
-
+            
             // get tags from template
             var tagRegex = /\^([\/A-Za-z0-9]+\[[\@\[\]\=\'A-Za-z0-9\.\-\/]+|[A-Za-z0-9_\.:\/]+[%]{1}[^ \^\t\r\n\"\'<>\(\)\{\}\/]*|[A-Za-z0-9_\.~:\/]+)/g;
             var tagList = template.match(tagRegex);
             var unitRegex = /[\d\.\,]+(.*)$/;
 
+            var bAtLeastOneValueIsSet = false;
+            
             jQuery.each(tagList, function(i, tag) {
                 var tagProc = tag.replace("^", "");
                 if(tag.indexOf("~") === -1) {
                     var selected = jQuery('select' + values[tagProc] + ' option:selected');
+                    
+                    var d;
                     if (selected.length) {
-                        t=t.replace(tag, selected.text());
+                        t=t.replace(tag, d = selected.text());
                     } else {
-                        t=t.replace(tag, jQuery(values[tagProc]).val());
+                        t=t.replace(tag, d = jQuery(values[tagProc]).val());
                     }
+                    if (d) { bAtLeastOneValueIsSet = true; }
                 } else {
                     var tagBits = tag.split(/\~/);
                     var tagRoot = tagBits[0].replace("^", "");
                     var cmd = tagBits[1].split(/\:/);
+                    
                     switch(cmd[0].toLowerCase()) {
                         case 'units':
                             var val = jQuery(values[tagRoot]).val();
+                            val = val.replace(/[,]+/g, '');
+                            if (val) { bAtLeastOneValueIsSet = true; }
+                            
+                            
                             val = that.convertFractionalNumberToDecimal(val);
 
                             var unitBits = val.match(unitRegex);
@@ -99,7 +122,7 @@ var caUI = caUI || {};
                             try {
                                 var qty = new Qty(val);
                                 switch(cmd[1]) {
-                                    case units:
+                                    case 'units':
                                         t=t.replace(tag, qty.to(cmd[1]).toString());
                                         break;
                                     case 'infrac':
@@ -119,6 +142,8 @@ var caUI = caUI || {};
                 }
             });
 
+			if (init && !bAtLeastOneValueIsSet) {return; }
+			
             // Process <ifdef> tags
             var h = jQuery("<div>" + t + "</div>");
             jQuery.each(tagList, function(k, tag) {
@@ -143,8 +168,15 @@ var caUI = caUI || {};
             if(!fractionalExpression) { return ''; }
             // convert ascii fractions (eg. 1/2) to decimal
             var matches;
+            
+            // Convert Unicode fractions to ascii text
+			for(frac in that.fractionTable) {
+				fractionalExpression = fractionalExpression.replace(frac, that.fractionTable[frac]);
+			}
             if (matches = fractionalExpression.match(/^([\d]*)[ ]*([\d]+)\/([\d]+)/)) {
                 var val = '';
+                
+                
                 if (parseFloat(matches[2]) > 0) {
                     val = parseFloat(matches[2])/parseFloat(matches[3]);
                 }
@@ -168,6 +200,10 @@ var caUI = caUI || {};
         that.convertLengthToFractions = function(inches, denom) {
             var inches_as_float = parseFloat(inches.replace(/[^0-9\.]+/, ''));
 
+			if (String(inches_as_float).match("\.1[0]*$")) { 
+				denom = 10; 
+			}
+			
             var num = Math.round(inches_as_float * denom);
             var int = parseInt(num / denom);
 
@@ -188,15 +224,22 @@ var caUI = caUI || {};
 
             num /= a;
             denom /= a;
+            
+            frac = num + "/" + denom;
+            for(f in that.fractionTable) {
+            	if (that.fractionTable[f] === frac) {
+            		frac = f;
+            	}
+            }
 
             if (int) {
                 if (num < 0) {
                     num *= -1;
                 }
-                return "" + int + " " + num + "/" + denom + " in";
+                return "" + int + " " + frac + " in";
             }
 
-            return "" + num + "/" + denom + " in";
+            return "" + frac + " in";
         };
         // --------------------------------------------------------------------------------
         return that;

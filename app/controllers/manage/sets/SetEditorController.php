@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2009-2015 Whirl-i-Gig
+ * Copyright 2009-2016 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -32,8 +32,14 @@
 
  	class SetEditorController extends BaseEditorController {
  		# -------------------------------------------------------
- 		protected $ops_table_name = 'ca_sets';		// name of "subject" table (what we're editing)
+ 		/**
+		 * name of "subject" table (what we're editing)
+		 */
+ 		protected $ops_table_name = 'ca_sets';
  		# -------------------------------------------------------
+ 		/**
+		 *
+		 */
  		public function __construct(&$po_request, &$po_response, $pa_view_paths=null) {
  			parent::__construct($po_request, $po_response, $pa_view_paths);
 
@@ -44,6 +50,9 @@
  			}
  		}
  		# -------------------------------------------------------
+ 		/**
+		 *
+		 */
  		protected function _initView($pa_options=null) {
  			AssetLoadManager::register('bundleableEditor');
  			AssetLoadManager::register('sortableUI');
@@ -55,6 +64,9 @@
  			return $va_init;
  		}
  		# -------------------------------------------------------
+ 		/**
+		 *
+		 */
  		public function Edit($pa_values=null, $pa_options=null) {
       		list($vn_subject_id, $t_subject, $t_ui, $vn_parent_id, $vn_above_id) = $this->_initView($pa_options);
       		
@@ -69,6 +81,9 @@
  			parent::Edit($pa_values, $pa_options);
  		}
  		# -------------------------------------------------------
+ 		/**
+		 *
+		 */
  		public function Delete($pa_options=null) {
  			list($vn_subject_id, $t_subject, $t_ui) = $this->_initView($pa_options);
 
@@ -81,6 +96,9 @@
 			  }
 		}
 		# -------------------------------------------------------
+		/**
+		 *
+		 */
 		private function UserCanDeleteSet($user_id) {
 		  $can_delete = FALSE;
 		  // If users can delete all sets, show Delete button
@@ -99,6 +117,9 @@
  		# -------------------------------------------------------
  		# Ajax handlers
  		# -------------------------------------------------------
+ 		/**
+		 *
+		 */
  		public function GetItemInfo() {
  			if ($pn_set_id = $this->request->getParameter('set_id', pInteger)) {
 				$t_set = new ca_sets($pn_set_id);
@@ -229,31 +250,110 @@
 			return $this->Edit();
 		}
 		# -------------------------------------------------------
+		/**
+		 *
+		 */
 		public function DuplicateItems() {
 			$t_set = new ca_sets($this->getRequest()->getParameter('set_id', pInteger));
 			if(!$t_set->getPrimaryKey()) { return; }
 
-			if($this->getRequest()->getParameter('setForDupes', pString) == 'current') {
-				$pa_dupe_options = array('addToCurrentSet' => true);
+			if(!(bool)$this->request->config->get('ca_sets_disable_duplication_of_items') && $this->request->user->canDoAction('can_duplicate_items_in_sets') && $this->request->user->canDoAction('can_duplicate_' . $t_set->getItemType())) {
+				if($this->getRequest()->getParameter('setForDupes', pString) == 'current') {
+					$pa_dupe_options = array('addToCurrentSet' => true);
+				} else {
+					$pa_dupe_options = array('addToCurrentSet' => false);
+				}
+
+				unset($_REQUEST['form_timestamp']);
+				$t_dupe_set = $t_set->duplicateItemsInSet($this->getRequest()->getUserID(), $pa_dupe_options);
+				if(!$t_dupe_set) {
+					$this->notification->addNotification(_t('Could not duplicate items in set: %1', join(';', $t_set->getErrors())), __NOTIFICATION_TYPE_ERROR__);
+					$this->Edit();
+					return;
+				}
+
+				$this->notification->addNotification(_t('Records have been successfully duplicated and added to set'), __NOTIFICATION_TYPE_INFO__);
+				$this->opo_response->setRedirect(caEditorUrl($this->getRequest(), 'ca_sets', $t_dupe_set->getPrimaryKey()));
 			} else {
-				$pa_dupe_options = array('addToCurrentSet' => false);
-			}
-
-			unset($_REQUEST['form_timestamp']);
-			$t_dupe_set = $t_set->duplicateItemsInSet($this->getRequest()->getUserID(), $pa_dupe_options);
-			if(!$t_dupe_set) {
-				$this->notification->addNotification(_t('Could not duplicate items in set: %1', join(';', $t_set->getErrors())), __NOTIFICATION_TYPE_ERROR__);
+				$this->notification->addNotification(_t('Cannot duplicate items'), __NOTIFICATION_TYPE_ERROR__);
 				$this->Edit();
-				return;
 			}
-
-			$this->notification->addNotification(_t('Records have been successfully duplicated and added to set'), __NOTIFICATION_TYPE_INFO__);
-			$this->opo_response->setRedirect(caEditorUrl($this->getRequest(), 'ca_sets', $t_dupe_set->getPrimaryKey()));
 			return;
 		}
+		# -------------------------------------------------------
+		# Export set items
+		# -------------------------------------------------------
+		public function exportSetItems() {
+			set_time_limit(600); // allow a lot of time for this because the sets can be potentially large
+			$o_dm = Datamodel::load();
+			$t_set = new ca_sets($this->request->getParameter('set_id', pInteger));
+			if (!$t_set->getPrimaryKey()) {
+				$this->notification->addNotification(_t('No set defined'), __NOTIFICATION_TYPE_ERROR__);
+				$this->opo_response->setRedirect(caEditorUrl($this->opo_request, 'ca_sets', $t_set->getPrimaryKey()));
+				return false;
+			}
+
+			$va_record_ids = array_keys($t_set->getItemRowIDs(array('limit' => 100000)));
+			if(!is_array($va_record_ids) || !sizeof($va_record_ids)) {
+				$this->notification->addNotification(_t('No items are available for export'), __NOTIFICATION_TYPE_ERROR__);
+				$this->opo_response->setRedirect(caEditorUrl($this->opo_request, 'ca_sets', $t_set->getPrimaryKey()));
+				return false;
+			}
+
+			$vs_subject_table = $o_dm->getTableName($t_set->get('table_num'));
+			$t_instance = $o_dm->getInstanceByTableName($vs_subject_table);
+
+			$qr_res = $vs_subject_table::createResultSet($va_record_ids);
+			$qr_res->filterNonPrimaryRepresentations(false);
+			$this->view->setVar('result', $qr_res);
+			$this->view->setVar('t_set', $t_set);
+
+			# --- get the export format/template to use
+			$ps_export_format = $this->request->getParameter('export_format', pString);
+			
+			//
+			// PDF output
+			//
+			$va_template_info = caGetPrintTemplateDetails('sets', substr($ps_export_format, 5));
+			if (!is_array($va_template_info)) {
+				$this->postError(3110, _t("Could not find view for PDF"),"SetEditorController->exportSetItems()");
+				return;
+			}
+			
+			try {
+				$this->view->setVar('base_path', $vs_base_path = pathinfo($va_template_info['path'], PATHINFO_DIRNAME).'/');
+				$this->view->addViewPath(array($vs_base_path, "{$vs_base_path}/local"));
+				
+				$o_pdf = new PDFRenderer();
+				
+				$va_page_size =	PDFRenderer::getPageSize(caGetOption('pageSize', $va_template_info, 'letter'), 'mm', caGetOption('pageOrientation', $va_template_info, 'portrait'));
+				$vn_page_width = $va_page_size['width']; $vn_page_height = $va_page_size['height'];
+			
+				$this->view->setVar('pageWidth', "{$vn_page_width}mm");
+				$this->view->setVar('pageHeight', "{$vn_page_height}mm");
+				$this->view->setVar('marginTop', caGetOption('marginTop', $va_template_info, '0mm'));
+				$this->view->setVar('marginRight', caGetOption('marginRight', $va_template_info, '0mm'));
+				$this->view->setVar('marginBottom', caGetOption('marginBottom', $va_template_info, '0mm'));
+				$this->view->setVar('marginLeft', caGetOption('marginLeft', $va_template_info, '0mm'));
+				
+				$this->view->setVar('PDFRenderer', $o_pdf->getCurrentRendererCode());
+				$vs_content = $this->render($va_template_info['path']);
+				
+				$o_pdf->setPage(caGetOption('pageSize', $va_template_info, 'letter'), caGetOption('pageOrientation', $va_template_info, 'portrait'), caGetOption('marginTop', $va_template_info, '0mm'), caGetOption('marginRight', $va_template_info, '0mm'), caGetOption('marginBottom', $va_template_info, '0mm'), caGetOption('marginLeft', $va_template_info, '0mm'));
+				$o_pdf->render($vs_content, array('stream'=> true, 'filename' => caGetOption('filename', $va_template_info, 'export_results.pdf')));
+				exit;
+			} catch (Exception $e) {
+				$this->postError(3100, _t("Could not generate PDF"),"BaseFindController->PrintSummary()");
+			}
+			return;
+		}
+		# -------------------------------------------------------
  		# -------------------------------------------------------
  		# Sidebar info handler
  		# -------------------------------------------------------
+ 		/**
+		 *
+		 */
  		public function info($pa_parameters) {
  			parent::info($pa_parameters);
  			return $this->render('widget_set_info_html.php', true);
