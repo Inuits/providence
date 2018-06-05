@@ -29,11 +29,11 @@
  *
  * ----------------------------------------------------------------------
  */
- 
+
  /**
   *
   */
- 
+
 require_once(__CA_LIB_DIR__."/core/BaseObject.php");
 require_once(__CA_LIB_DIR__."/core/ApplicationError.php");
 require_once(__CA_LIB_DIR__."/core/Controller/Request/RequestHTTP.php");
@@ -62,7 +62,7 @@ class RequestDispatcher extends BaseObject {
 	# -------------------------------------------------------
 	public function __construct($po_request=null, $po_response=null) {
 		parent::__construct();
-		
+
 		if ($po_request) {
 			$this->setRequest($po_request);
 		}
@@ -73,7 +73,7 @@ class RequestDispatcher extends BaseObject {
 	# -------------------------------------------------------
 	public function setRequest(&$po_request) {
 		$this->opo_request = $po_request;
-		
+
 		switch($po_request->getScriptName()){
 			case "service.php":
 				$this->ops_controller_path = $this->opo_request->config->get('service_controllers_directory');
@@ -100,27 +100,27 @@ class RequestDispatcher extends BaseObject {
 		if (!($vs_path = $this->opo_request->getPathInfo()) || ($vs_path == '/')) {
 			$vs_path = $this->ops_default_action;
 		}
-		
+
 		if ($vs_path{0} === '/') { $vs_path = substr($vs_path, 1); }	// trim leading forward slash...
 		$va_tmp = explode('/', $vs_path);								// break path into parts
-		
+
 		if (is_dir($this->ops_theme_plugins_path.'/'.$va_tmp[0].'/controllers')) {
 			// is theme plugin
 			$vs_controller_path = $this->ops_theme_plugins_path.'/'.$va_tmp[0].'/controllers';
-			
+
 			$va_module_path = array();
 			$vs_module_path_prefix = $va_tmp[0].'/controllers';
 			array_shift($va_tmp);
-			
+
 			$this->opo_request->setIsApplicationPlugin(true);
 		} elseif (is_dir($this->ops_application_plugins_path.'/'.$va_tmp[0].'/controllers')) {
 			// is application plugin
 			$vs_controller_path = $this->ops_application_plugins_path.'/'.$va_tmp[0].'/controllers';
-			
+
 			$va_module_path = array();
 			$vs_module_path_prefix = $va_tmp[0].'/controllers';
 			array_shift($va_tmp);
-			
+
 			$this->opo_request->setIsApplicationPlugin(true);
 		} else {
 			$vs_controller_path = $this->ops_controller_path;
@@ -145,7 +145,7 @@ class RequestDispatcher extends BaseObject {
 		} else {
 			$this->ops_action_extra = '';
 		}
-		
+
 		while(sizeof($va_tmp) > 0) {
 			$this->opo_request->setParameter(array_shift($va_tmp), array_shift($va_tmp), 'PATH');
 		}
@@ -153,7 +153,7 @@ class RequestDispatcher extends BaseObject {
 		$this->opo_request->setController($this->ops_controller);
 		$this->opo_request->setAction($this->ops_action);
 		$this->opo_request->setActionExtra($this->ops_action_extra);
-		
+
 		$this->opo_request->setControllerUrl(preg_replace("![/]+!", "/", join('/', array_merge(array($this->opo_request->getBaseUrlPath(), $this->opo_request->getScriptName()), array($this->opo_request->getModulePath()), array($this->ops_controller)))));
 
 		if ($this->ops_controller != '') {
@@ -176,7 +176,7 @@ class RequestDispatcher extends BaseObject {
 		if ($this->isDispatchable()) {
 			do {
 				$vs_classname = ucfirst($this->ops_controller).'Controller';
-				
+
 				// first check for controller in theme...
 				if (!defined('__CA_THEME_DIR__') || !file_exists(__CA_THEME_DIR__.'/controllers/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php') || !include_once(__CA_THEME_DIR__.'/controllers/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php')) {
 					// then check controllers directory...
@@ -185,14 +185,14 @@ class RequestDispatcher extends BaseObject {
 						if (!file_exists($this->ops_theme_plugins_path.'/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php') || !include_once($this->ops_theme_plugins_path.'/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php')) {
 							// ... next check application plugins
 							if (!file_exists($this->ops_application_plugins_path.'/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php') || !include_once($this->ops_application_plugins_path.'/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php')) {
-						
+
 								// ... next check the generic "_root_" plugin directory
 								// plugins in here act as if they are in the app/controllers directory
-								if (!file_exists($this->ops_application_plugins_path.'/_root_/controllers/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php') || !include_once($this->ops_application_plugins_path.'/_root_/controllers/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php')) {					
-									// ... next check for root controllers in plugins 
+								if (!file_exists($this->ops_application_plugins_path.'/_root_/controllers/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php') || !include_once($this->ops_application_plugins_path.'/_root_/controllers/'.join('/', $this->opa_module_path).'/'.$vs_classname.'.php')) {
+									// ... next check for root controllers in plugins
 									$o_app_plugin_manager = new ApplicationPluginManager();
 									$va_app_plugin_names = $o_app_plugin_manager->getPluginNames();
-							
+
 									$vb_is_error = true;
 									foreach($va_app_plugin_names as $vs_app_plugin_name) {
 										if ($vs_app_plugin_name === '_root_') { continue; }
@@ -200,20 +200,20 @@ class RequestDispatcher extends BaseObject {
 											$vb_is_error = false;
 										}
 									}
-							
+
 									if ($vb_is_error) {
 										// Try to load "Default" controller in controllers directory and call method with controller name
 										if (file_exists($this->ops_controller_path.'/DefaultController.php') && @include_once($this->ops_controller_path.'/DefaultController.php')) {
-						
+
 											$vs_default_method = $this->ops_controller;
-						
+
 											// Set DefaultController as controller class
-											$vs_classname = 'DefaultController';	
-						
+											$vs_classname = 'DefaultController';
+
 											// Take rest of path and pass as params to DefaultController __call()
 											$va_params = array($this->ops_action);
-											if ($this->ops_action_extra) { $va_params[] = $this->ops_action_extra; } 
-						
+											if ($this->ops_action_extra) { $va_params[] = $this->ops_action_extra; }
+
 											$va_path_params = $this->opo_request->getParameters(array('PATH'));
 											foreach($va_path_params as $vs_param => $vs_value) {
 												if (!$vs_param) { $va_params[] = $vs_param; }
@@ -236,8 +236,9 @@ class RequestDispatcher extends BaseObject {
 					switch($this->opo_request->getScriptName()){
 						case "service.php":
 							// service auth requests for deprecated service API are allowed to go through to
-							// dispatch because in that case logging in requires running actual controller code. 
+							// dispatch because in that case logging in requires running actual controller code.
 							// this is bad practice and should be removed once the old API is no longer supported.
+							// 20180221 - check disabled for ABS testing
 							if(!$this->opo_request->isServiceAuthRequest()) {
 								$this->opo_response->setHTTPResponseCode(401,_t("Access denied"));
 								$this->opo_response->addHeader('WWW-Authenticate','Basic realm="CollectiveAccess Service API"');
@@ -250,12 +251,12 @@ class RequestDispatcher extends BaseObject {
 							return false;
 					}
 				}
-				
+
 
 				$o_action_controller = new $vs_classname($this->opo_request, $this->opo_response, $this->opo_request->getViewsDirectoryPath().'/'.join('/', $this->opa_module_path));
 
 				$this->opo_request->setIsDispatched(true);
-				
+
 				if (!$this->opo_response->isRedirect()) {
 					$vb_plugin_cancelled_dispatch = false;
 					foreach($pa_plugins as $vo_plugin) {
@@ -264,9 +265,9 @@ class RequestDispatcher extends BaseObject {
 							$vb_plugin_cancelled_dispatch = true;
 						}
 					}
-				
+
 					if (!$vb_plugin_cancelled_dispatch) {
-						if (!$this->ops_action || !(method_exists($o_action_controller, $this->ops_action) || method_exists($o_action_controller, '__call'))) { 
+						if (!$this->ops_action || !(method_exists($o_action_controller, $this->ops_action) || method_exists($o_action_controller, '__call'))) {
 							$this->postError(2310, _t("Not dispatchable"), "RequestDispatcher->dispatch()");
 							return false;
 						}
@@ -276,10 +277,10 @@ class RequestDispatcher extends BaseObject {
 							return false;
 						}
 					}
-				
+
 					// reload plugins in case controller we dispatched to has changed them
 					$pa_plugins = $this->getPlugins($pa_plugins);
-				
+
 					foreach($pa_plugins as $vo_plugin) {
 						$vo_plugin->postDispatch();
 					}
@@ -289,7 +290,7 @@ class RequestDispatcher extends BaseObject {
 					}
 				}
 			} while($this->opo_request->isDispatched() == false);
-			
+
 			return true;
 		}
 		$this->postError(2310, _t("Not dispatchable"), "RequestDispatcher->dispatch()");

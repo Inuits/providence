@@ -48,6 +48,12 @@ class CurlFactory
             $handle = curl_init();
         }
 
+        // If the given handle is closed, create a new one
+        // Hotfix @ 2018-06-04T16:14:00+0200
+        if (!is_resource($handle)) {
+            $handle = curl_init();
+        }
+
         $body = $this->getOutputBody($request, $options);
         curl_setopt_array($handle, $options);
 
