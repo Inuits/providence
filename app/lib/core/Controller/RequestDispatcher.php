@@ -300,5 +300,4 @@ class RequestDispatcher extends BaseObject {
 		return $this->opb_is_dispatchable;
 	}
 	# -------------------------------------------------------
->>>>>>> 6b990ff9cf1b7df950a7f5611a8429d16347531b
 }
