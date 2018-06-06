@@ -238,7 +238,6 @@ class RequestDispatcher extends BaseObject {
 							// service auth requests for deprecated service API are allowed to go through to
 							// dispatch because in that case logging in requires running actual controller code.
 							// this is bad practice and should be removed once the old API is no longer supported.
-							// 20180221 - check disabled for ABS testing
 							if(!$this->opo_request->isServiceAuthRequest()) {
 								$this->opo_response->setHTTPResponseCode(401,_t("Access denied"));
 								$this->opo_response->addHeader('WWW-Authenticate','Basic realm="CollectiveAccess Service API"');
